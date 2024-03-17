@@ -65,7 +65,6 @@ where
     }
 
     if ui.is_rect_visible(rect) {
-        let visuals = *ui.style().interact(&response);
         let value = get(&mut value);
 
         let radius = diameter / 2.0;

@@ -130,7 +130,7 @@ impl FrameHistory {
     }
 }
 
-const SAMPLES: usize = 2048;
+const SAMPLES: usize = 1024;
 
 fn main() -> Result<(), eframe::Error> {
     let options = eframe::NativeOptions {
@@ -150,7 +150,6 @@ struct TestApp {
     frame_history: FrameHistory,
     frame_idx: usize,
     frame_usages: [f32; SAMPLES],
-    usage: String,
 }
 
 impl Default for TestApp {
@@ -160,8 +159,7 @@ impl Default for TestApp {
             knob2: Default::default(),
             frame_history: FrameHistory::default(),
             frame_idx: Default::default(),
-            frame_usages: [0.0; SAMPLES],
-            usage: String::default()
+            frame_usages: [0.0; SAMPLES]
         }
     }
 }

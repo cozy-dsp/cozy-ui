@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+colorgrad = { git = "https://github.com/mazznoer/colorgrad-rs.git" }
 egui = "0.26.2"
 once_cell = { version = "1.19.0", features = ["parking_lot"] }
 

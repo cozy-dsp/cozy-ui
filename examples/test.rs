@@ -159,43 +159,43 @@ impl Default for TestApp {
             knob2: Default::default(),
             frame_history: FrameHistory::default(),
             frame_idx: Default::default(),
-            frame_usages: [0.0; SAMPLES]
+            frame_usages: [0.0; SAMPLES],
         }
     }
 }
 
 impl eframe::App for TestApp {
     fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
-        self.frame_history.on_new_frame(ctx.input(|i| i.time), frame.info().cpu_usage);
+        self.frame_history
+            .on_new_frame(ctx.input(|i| i.time), frame.info().cpu_usage);
         CentralPanel::default().show(ctx, |ui| {
             knob(
                 ui,
                 "knob1",
                 50.0,
                 get_set(&mut self.knob),
-                || {
-                },
-                || {
-                },
-                0.5
+                || {},
+                || {},
+                0.5,
             );
             knob(
                 ui,
                 "knob2",
                 50.0,
                 get_set(&mut self.knob2),
-                || {
-                },
-                || {
-                },
-                0.5
+                || {},
+                || {},
+                0.5,
             );
             ui.label(format!("fps: {}", self.frame_history.fps()));
             if let Some(usage) = frame.info().cpu_usage {
                 self.frame_usages[self.frame_idx] = usage;
                 self.frame_idx = (self.frame_idx + 1) % SAMPLES;
             }
-            ui.label(format!("frame time: {:#?}", Duration::from_secs_f32(self.frame_usages.iter().sum::<f32>() / SAMPLES as f32)));
+            ui.label(format!(
+                "frame time: {:#?}",
+                Duration::from_secs_f32(self.frame_usages.iter().sum::<f32>() / SAMPLES as f32)
+            ));
         });
         ctx.request_repaint();
     }

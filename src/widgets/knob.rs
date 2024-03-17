@@ -1,7 +1,5 @@
-use colorgrad::{Gradient, BasisGradient, Color, GradientBuilder};
-use egui::{
-    epaint::PathShape, remap_clamp, Color32, Painter, Response, Sense, Stroke, Ui, Vec2
-};
+use colorgrad::{BasisGradient, Color, Gradient, GradientBuilder};
+use egui::{epaint::PathShape, remap_clamp, Color32, Painter, Response, Sense, Stroke, Ui, Vec2};
 use once_cell::sync::Lazy;
 
 use crate::util::CIRCLE_POINTS;
@@ -23,10 +21,17 @@ pub fn knob<GetSet, Start, End>(
 where
     GetSet: FnMut(Option<f32>) -> f32,
     Start: Fn(),
-    End: Fn()
+    End: Fn(),
 {
     static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
-        GradientBuilder::new().colors(&[Color::from_html("#ff0000").unwrap(), Color::from_html("#de07db").unwrap()]).mode(colorgrad::BlendMode::Oklab).build().unwrap()
+        GradientBuilder::new()
+            .colors(&[
+                Color::from_html("#ff0000").unwrap(),
+                Color::from_html("#de07db").unwrap(),
+            ])
+            .mode(colorgrad::BlendMode::Oklab)
+            .build()
+            .unwrap()
     });
     let desired_size = Vec2::splat(diameter + 5.0);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
@@ -71,15 +76,21 @@ where
 
         let painter = Painter::new(ui.ctx().clone(), ui.layer_id(), rect);
 
-        // TODO: this needs to be unique
-        let animated_granular = ui.ctx().animate_bool(format!("knob_{id}_granular").into(), granular);
+        let animated_granular = ui
+            .ctx()
+            .animate_bool(format!("knob_{id}_granular").into(), granular);
         let color = TRACK_GRADIENT.at(animated_granular).to_rgba8();
         let stroke_color = Color32::from_rgb(color[0], color[1], color[2]);
 
         knob_track(&painter, radius, stroke_color);
 
-        #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation, clippy::cast_precision_loss)]
-        let tick_angle = remap_clamp(value, 0.0..=1.0, HIGHER_DEG as f32..=LOWER_DEG as f32).round() as usize;
+        #[allow(
+            clippy::cast_sign_loss,
+            clippy::cast_possible_truncation,
+            clippy::cast_precision_loss
+        )]
+        let tick_angle =
+            remap_clamp(value, 0.0..=1.0, HIGHER_DEG as f32..=LOWER_DEG as f32).round() as usize;
         let (tick_sin, tick_cos) = CIRCLE_POINTS[tick_angle - 1];
         painter.line_segment(
             [

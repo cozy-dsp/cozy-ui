@@ -1,7 +1,8 @@
 use std::time::Duration;
 
 use cozy_ui::widgets::knob::knob;
-use egui::CentralPanel;
+use egui::epaint::Shadow;
+use egui::{CentralPanel, Color32};
 
 use egui::util::History;
 
@@ -140,7 +141,15 @@ fn main() -> Result<(), eframe::Error> {
     eframe::run_native(
         "My egui App",
         options,
-        Box::new(|_cc| Box::<TestApp>::default()),
+        Box::new(|cc| {
+            cc.egui_ctx.style_mut(|style| {
+                style.visuals.popup_shadow = Shadow {
+                    extrusion: 1.5,
+                    color: Color32::BLACK
+                };
+            });
+            Box::<TestApp>::default()
+        }),
     )
 }
 

@@ -34,7 +34,8 @@ where
             .unwrap()
     });
     let desired_size = Vec2::splat(diameter + 5.0);
-    let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
+    let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
+    let mut response = response.on_hover_text_at_pointer("text");
     let mut granular = false;
 
     if response.double_clicked() {

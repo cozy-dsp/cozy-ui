@@ -1,3 +1,4 @@
+pub mod button;
 pub mod knob;
 
 fn get<T, GetSet>(getter: &mut GetSet) -> T

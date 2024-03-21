@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use cozy_ui::widgets::button::toggle;
 use cozy_ui::widgets::knob::knob;
 
 use egui::CentralPanel;
@@ -151,6 +152,8 @@ fn main() -> Result<(), eframe::Error> {
 struct TestApp {
     knob: f32,
     knob2: f32,
+    button: bool,
+    button2: bool,
     frame_history: FrameHistory,
     frame_idx: usize,
     frame_usages: [f32; SAMPLES],
@@ -161,6 +164,8 @@ impl Default for TestApp {
         Self {
             knob: Default::default(),
             knob2: Default::default(),
+            button: false,
+            button2: false,
             frame_history: FrameHistory::default(),
             frame_idx: Default::default(),
             frame_usages: [0.0; SAMPLES],
@@ -211,6 +216,8 @@ impl eframe::App for TestApp {
                     0.5,
                 );
             });
+            toggle(ui, "button1", get_set(&mut self.button), false, "button 1", || {}, || {});
+            toggle(ui, "button2", get_set(&mut self.button2), false, "button 2", || {}, || {});
             ui.label(format!("fps: {}", self.frame_history.fps()));
             if let Some(usage) = frame.info().cpu_usage {
                 self.frame_usages[self.frame_idx] = usage;
@@ -225,7 +232,10 @@ impl eframe::App for TestApp {
     }
 }
 
-fn get_set(value: &mut f32) -> impl FnMut(Option<f32>) -> f32 + '_ {
+fn get_set<T>(value: &mut T) -> impl FnMut(Option<T>) -> T + '_
+where
+    T: Copy,
+{
     |v| match v {
         Some(v) => {
             *value = v;

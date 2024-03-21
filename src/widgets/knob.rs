@@ -68,6 +68,20 @@ where
         response.mark_changed();
     }
 
+    if response.hovered() && response.ctx.input(|input| input.smooth_scroll_delta.length() > 0.0) {
+        let drag_delta = response.ctx.input(|input| input.smooth_scroll_delta);
+        granular = response.ctx.input(|i| i.modifiers.shift);
+        let diameter_scale = if granular { 4.0 } else { 2.0 };
+
+        let delta = -(drag_delta.x + drag_delta.y);
+        let mut new_value = get(&mut value);
+        new_value += delta / (diameter * diameter_scale);
+        new_value = new_value.clamp(0.0, 1.0);
+        set(&mut value, new_value);
+
+        response.mark_changed();
+    }
+
     if response.drag_released() {
         drag_ended();
     }

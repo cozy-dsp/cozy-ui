@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use cozy_ui::colors::BACKGROUND;
 use cozy_ui::widgets::knob::knob;
 use egui::epaint::Shadow;
 use egui::{CentralPanel, Color32};
@@ -142,12 +143,7 @@ fn main() -> Result<(), eframe::Error> {
         "My egui App",
         options,
         Box::new(|cc| {
-            cc.egui_ctx.style_mut(|style| {
-                style.visuals.popup_shadow = Shadow {
-                    extrusion: 1.5,
-                    color: Color32::BLACK
-                };
-            });
+            cozy_ui::setup(&cc.egui_ctx);
             Box::<TestApp>::default()
         }),
     )
@@ -178,24 +174,44 @@ impl eframe::App for TestApp {
         self.frame_history
             .on_new_frame(ctx.input(|i| i.time), frame.info().cpu_usage);
         CentralPanel::default().show(ctx, |ui| {
-            knob(
-                ui,
-                "knob1",
-                50.0,
-                get_set(&mut self.knob),
-                || {},
-                || {},
-                0.5,
-            );
-            knob(
-                ui,
-                "knob2",
-                50.0,
-                get_set(&mut self.knob2),
-                || {},
-                || {},
-                0.5,
-            );
+            ui.horizontal(|ui| {
+                knob(
+                    ui,
+                    "knob1",
+                    50.0,
+                    get_set(&mut self.knob),
+                    || {},
+                    || {},
+                    0.5,
+                );
+                knob(
+                    ui,
+                    "knob2",
+                    75.0,
+                    get_set(&mut self.knob2),
+                    || {},
+                    || {},
+                    0.5,
+                );
+                knob(
+                    ui,
+                    "knob3",
+                    100.0,
+                    get_set(&mut self.knob),
+                    || {},
+                    || {},
+                    0.5,
+                );
+                knob(
+                    ui,
+                    "knob4",
+                    125.0,
+                    get_set(&mut self.knob2),
+                    || {},
+                    || {},
+                    0.5,
+                );
+            });
             ui.label(format!("fps: {}", self.frame_history.fps()));
             if let Some(usage) = frame.info().cpu_usage {
                 self.frame_usages[self.frame_idx] = usage;

@@ -1,13 +1,27 @@
 use colorgrad::{BasisGradient, Color, Gradient, GradientBuilder};
-use egui::{epaint::PathShape, remap_clamp, Color32, Painter, Response, Sense, Stroke, Ui, Vec2};
+use egui::{
+    emath::Rot2, epaint::PathShape, remap_clamp, Color32, Image, Painter, Pos2, Rect, Response,
+    Rounding, Sense, Stroke, Ui, Vec2,
+};
 use once_cell::sync::Lazy;
 
-use crate::util::CIRCLE_POINTS;
+use crate::{
+    colors::{HIGHLIGHT, PURPLE_COL32, WIDGET_BACKGROUND_COL32},
+    util::CIRCLE_POINTS,
+};
 
 use super::{get, set};
 
 const LOWER_DEG: usize = 45;
 const HIGHER_DEG: usize = 315;
+
+static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
+    GradientBuilder::new()
+        .colors(&[Color::from(HIGHLIGHT), Color::from_html("#de07db").unwrap()])
+        .mode(colorgrad::BlendMode::Oklab)
+        .build()
+        .unwrap()
+});
 
 pub fn knob<GetSet, Start, End>(
     ui: &mut Ui,
@@ -23,20 +37,11 @@ where
     Start: Fn(),
     End: Fn(),
 {
-    static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
-        GradientBuilder::new()
-            .colors(&[
-                Color::from_html("#ff0000").unwrap(),
-                Color::from_html("#de07db").unwrap(),
-            ])
-            .mode(colorgrad::BlendMode::Oklab)
-            .build()
-            .unwrap()
-    });
     let desired_size = Vec2::splat(diameter + 5.0);
     let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
     let mut response = response.on_hover_text_at_pointer("text");
     let mut granular = false;
+    let hovered = response.hovered() || response.dragged();
 
     if response.double_clicked() {
         drag_started();
@@ -44,7 +49,7 @@ where
         drag_ended();
     }
 
-    if response.contains_pointer() && response.ctx.input(|i| i.pointer.primary_down()) {
+    if response.hovered() && response.ctx.input(|i| i.pointer.primary_down()) {
         granular = response.ctx.input(|i| i.modifiers.shift);
     }
 
@@ -73,34 +78,60 @@ where
     if ui.is_rect_visible(rect) {
         let value = get(&mut value);
 
-        let radius = diameter / 2.0;
+        let radius = (diameter * 0.75) / 2.0;
+        let background_radius = diameter / 2.0;
+        let focus_ring_radius = (diameter * 0.90) / 2.0;
 
         let painter = Painter::new(ui.ctx().clone(), ui.layer_id(), rect);
 
         let animated_granular = ui
             .ctx()
             .animate_bool(format!("knob_{id}_granular").into(), granular);
+        let animated_hover = ui
+            .ctx()
+            .animate_bool(format!("knob_{id}_hover").into(), hovered);
         let color = TRACK_GRADIENT.at(animated_granular).to_rgba8();
         let stroke_color = Color32::from_rgb(color[0], color[1], color[2]);
 
+        painter.circle_filled(
+            painter.clip_rect().center(),
+            background_radius,
+            WIDGET_BACKGROUND_COL32,
+        );
+
         knob_track(&painter, radius, stroke_color);
 
+        painter.circle_stroke(
+            painter.clip_rect().center(),
+            focus_ring_radius,
+            Stroke::new(
+                focus_ring_radius * 0.07,
+                PURPLE_COL32.gamma_multiply(animated_hover),
+            ),
+        );
+
+        
+        #[allow(clippy::cast_precision_loss)]
+        let tick_angle_f32 = remap_clamp(value, 0.0..=1.0, HIGHER_DEG as f32..=LOWER_DEG as f32);
         #[allow(
             clippy::cast_sign_loss,
-            clippy::cast_possible_truncation,
-            clippy::cast_precision_loss
+            clippy::cast_possible_truncation
         )]
-        let tick_angle =
-            remap_clamp(value, 0.0..=1.0, HIGHER_DEG as f32..=LOWER_DEG as f32).round() as usize;
+        let tick_angle = tick_angle_f32.round() as usize;
+
+        star(&painter, tick_angle_f32, diameter);
+
         let (tick_sin, tick_cos) = CIRCLE_POINTS[tick_angle - 1];
+        let first_point = painter.clip_rect().center()
+            + Vec2::new(radius * 0.5 * tick_sin, radius * 0.5 * tick_cos);
+        let second_point =
+            painter.clip_rect().center() + Vec2::new(radius * tick_sin, radius * tick_cos);
         painter.line_segment(
-            [
-                painter.clip_rect().center()
-                    + Vec2::new(radius * 0.5 * tick_sin, radius * 0.5 * tick_cos),
-                painter.clip_rect().center() + Vec2::new(radius * tick_sin, radius * tick_cos),
-            ],
-            Stroke::new(2.0, Color32::WHITE),
+            [first_point, second_point],
+            Stroke::new(background_radius * 0.15, Color32::WHITE),
         );
+        painter.circle_filled(first_point, background_radius * 0.07, Color32::WHITE);
+        painter.circle_filled(second_point, background_radius * 0.07, Color32::WHITE);
     }
 
     response
@@ -114,5 +145,43 @@ fn knob_track(painter: &Painter, radius: f32, stroke_color: Color32) {
         points.push(painter.clip_rect().center() + Vec2::new(radius * sin, radius * cos));
     }
 
-    painter.add(PathShape::line(points, Stroke::new(1.5, stroke_color)));
+    painter.add(PathShape::line(
+        points,
+        Stroke::new(radius * 0.1, stroke_color),
+    ));
+}
+
+fn star(painter: &Painter, angle: f32, diameter: f32) {
+    let angle = angle + 45.0;
+    let (corner_1_sin, corner_1_cos) = angle.to_radians().sin_cos();
+    let corner_1 = painter.clip_rect().center()
+        + Vec2::new(
+            (diameter * 0.2) * corner_1_sin,
+            (diameter * 0.2) * corner_1_cos,
+        );
+    let (corner_2_sin, corner_2_cos) = (angle + 90.0).to_radians().sin_cos();
+    let corner_2 = painter.clip_rect().center()
+        + Vec2::new(
+            (diameter * 0.2) * corner_2_sin,
+            (diameter * 0.2) * corner_2_cos,
+        );
+    let (corner_3_sin, corner_3_cos) = (angle + 180.0).to_radians().sin_cos();
+    let corner_3 = painter.clip_rect().center()
+        + Vec2::new(
+            (diameter * 0.2) * corner_3_sin,
+            (diameter * 0.2) * corner_3_cos,
+        );
+        let (corner_4_sin, corner_4_cos) = (angle + 270.0).to_radians().sin_cos();
+        let corner_4 = painter.clip_rect().center()
+            + Vec2::new(
+                (diameter * 0.2) * corner_4_sin,
+                (diameter * 0.2) * corner_4_cos,
+            );
+    
+    painter.add(PathShape::convex_polygon(vec![corner_1, corner_2, corner_3, corner_4], Color32::WHITE, Stroke::NONE));
+
+    painter.circle_filled(corner_1, diameter * 0.15, WIDGET_BACKGROUND_COL32);
+    painter.circle_filled(corner_2, diameter * 0.15, WIDGET_BACKGROUND_COL32);
+    painter.circle_filled(corner_3, diameter * 0.15, WIDGET_BACKGROUND_COL32);
+    painter.circle_filled(corner_4, diameter * 0.15, WIDGET_BACKGROUND_COL32);
 }

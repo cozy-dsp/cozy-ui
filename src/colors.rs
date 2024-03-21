@@ -1,4 +1,3 @@
-use colorgrad::Color;
 use egui::Color32;
 
 pub const BACKGROUND: (u8, u8, u8) = (69, 65, 73);

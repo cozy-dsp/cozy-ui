@@ -16,7 +16,6 @@ pub fn setup(ctx: &Context) {
             extrusion: 1.5,
             color: Color32::BLACK,
         };
-        style.visuals.panel_fill =
-            Color32::from_rgb(BACKGROUND.0, BACKGROUND.1, BACKGROUND.2);
+        style.visuals.panel_fill = Color32::from_rgb(BACKGROUND.0, BACKGROUND.1, BACKGROUND.2);
     });
 }

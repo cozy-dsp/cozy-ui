@@ -1,9 +1,8 @@
 use std::time::Duration;
 
-use cozy_ui::colors::BACKGROUND;
 use cozy_ui::widgets::knob::knob;
-use egui::epaint::Shadow;
-use egui::{CentralPanel, Color32};
+
+use egui::CentralPanel;
 
 use egui::util::History;
 

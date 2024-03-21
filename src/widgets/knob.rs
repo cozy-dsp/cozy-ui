@@ -1,8 +1,5 @@
 use colorgrad::{BasisGradient, Color, Gradient, GradientBuilder};
-use egui::{
-    emath::Rot2, epaint::PathShape, remap_clamp, Color32, Image, Painter, Pos2, Rect, Response,
-    Rounding, Sense, Stroke, Ui, Vec2,
-};
+use egui::{epaint::PathShape, remap_clamp, Color32, Painter, Response, Sense, Stroke, Ui, Vec2};
 use once_cell::sync::Lazy;
 
 use crate::{
@@ -110,13 +107,9 @@ where
             ),
         );
 
-        
         #[allow(clippy::cast_precision_loss)]
         let tick_angle_f32 = remap_clamp(value, 0.0..=1.0, HIGHER_DEG as f32..=LOWER_DEG as f32);
-        #[allow(
-            clippy::cast_sign_loss,
-            clippy::cast_possible_truncation
-        )]
+        #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
         let tick_angle = tick_angle_f32.round() as usize;
 
         star(&painter, tick_angle_f32, diameter);
@@ -171,14 +164,18 @@ fn star(painter: &Painter, angle: f32, diameter: f32) {
             (diameter * 0.2) * corner_3_sin,
             (diameter * 0.2) * corner_3_cos,
         );
-        let (corner_4_sin, corner_4_cos) = (angle + 270.0).to_radians().sin_cos();
-        let corner_4 = painter.clip_rect().center()
-            + Vec2::new(
-                (diameter * 0.2) * corner_4_sin,
-                (diameter * 0.2) * corner_4_cos,
-            );
-    
-    painter.add(PathShape::convex_polygon(vec![corner_1, corner_2, corner_3, corner_4], Color32::WHITE, Stroke::NONE));
+    let (corner_4_sin, corner_4_cos) = (angle + 270.0).to_radians().sin_cos();
+    let corner_4 = painter.clip_rect().center()
+        + Vec2::new(
+            (diameter * 0.2) * corner_4_sin,
+            (diameter * 0.2) * corner_4_cos,
+        );
+
+    painter.add(PathShape::convex_polygon(
+        vec![corner_1, corner_2, corner_3, corner_4],
+        Color32::WHITE,
+        Stroke::NONE,
+    ));
 
     painter.circle_filled(corner_1, diameter * 0.15, WIDGET_BACKGROUND_COL32);
     painter.circle_filled(corner_2, diameter * 0.15, WIDGET_BACKGROUND_COL32);

@@ -66,9 +66,12 @@ where
         set(&mut value, new_value);
 
         response.mark_changed();
-    }
-
-    if response.hovered() && response.ctx.input(|input| input.smooth_scroll_delta.length() > 0.0) {
+    } else if response.hovered()
+        && response
+            .ctx
+            .input(|input| input.smooth_scroll_delta.length() > 0.0)
+    {
+        drag_started();
         let drag_delta = response.ctx.input(|input| input.smooth_scroll_delta);
         granular = response.ctx.input(|i| i.modifiers.shift);
         let diameter_scale = if granular { 4.0 } else { 2.0 };
@@ -80,6 +83,7 @@ where
         set(&mut value, new_value);
 
         response.mark_changed();
+        drag_ended();
     }
 
     if response.drag_released() {

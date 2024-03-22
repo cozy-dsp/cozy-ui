@@ -1,5 +1,7 @@
+use std::sync::Arc;
+
 use colorgrad::{BasisGradient, Color, Gradient, GradientBuilder};
-use egui::{epaint::PathShape, remap_clamp, Color32, Painter, Response, Sense, Stroke, Ui, Vec2, WidgetText};
+use egui::{epaint::PathShape, pos2, remap_clamp, Color32, Galley, Painter, Response, Rounding, Sense, Stroke, TextStyle, Ui, Vec2, WidgetText};
 use once_cell::sync::Lazy;
 
 use crate::{
@@ -20,10 +22,11 @@ static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
         .unwrap()
 });
 
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::too_many_lines)]
 pub fn knob<GetSet, Start, End, Text>(
     ui: &mut Ui,
     id: &str,
+    label: Option<Text>,
     description: Option<Text>,
     diameter: f32,
     mut value: GetSet,
@@ -35,13 +38,27 @@ where
     GetSet: FnMut(Option<f32>) -> f32,
     Start: Fn(),
     End: Fn(),
-    Text: Into<WidgetText>
+    Text: Into<WidgetText>,
+    WidgetText: From<Text>
 {
-    let desired_size = Vec2::splat(diameter + 5.0);
-    let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
+    let mut desired_size = Vec2::splat(diameter + 5.0);
+    let galley = label.map_or_else(|| None, |label| {
+            let galley = WidgetText::from(label).into_galley(ui, Some(false), desired_size.x, TextStyle::Body);
+            let height_difference = galley.size().y + ui.spacing().item_spacing.y;
+            desired_size.y += height_difference;
+            desired_size.x = desired_size.x.max(galley.size().x);
+            Some(galley)
+        });
+    let (full_rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
     if let Some(description) = description {
         response = response.on_hover_text_at_pointer(description.into());
     }
+    let (rect, text_rect) = if galley.is_some() {
+        let (rect, text_rect) = full_rect.split_top_bottom_at_y(full_rect.top() + (diameter + 5.0));
+        (rect, Some(text_rect))
+    } else {
+        (full_rect, None)
+    };
     let mut granular = false;
     let hovered = response.hovered() || response.dragged();
 
@@ -95,7 +112,7 @@ where
         drag_ended();
     }
 
-    if ui.is_rect_visible(rect) {
+    if ui.is_rect_visible(full_rect) {
         let value = get(&mut value);
 
         let radius = (diameter * 0.75) / 2.0;
@@ -148,6 +165,12 @@ where
         );
         painter.circle_filled(first_point, background_radius * 0.07, Color32::WHITE);
         painter.circle_filled(second_point, background_radius * 0.07, Color32::WHITE);
+
+        if let Some(text_rect) = text_rect {
+            if let Some(galley) = galley {
+                ui.painter().galley(pos2(text_rect.center().x - galley.size().x / 2.0, 0.5f32.mul_add(-galley.size().y, text_rect.center().y)), galley, Color32::WHITE);
+            }
+        }
     }
 
     response

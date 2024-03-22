@@ -183,6 +183,7 @@ impl eframe::App for TestApp {
                 knob(
                     ui,
                     "knob1",
+                    Some("I GOT LABELS"),
                     None::<&str>,
                     50.0,
                     get_set(&mut self.knob),
@@ -194,6 +195,7 @@ impl eframe::App for TestApp {
                     ui,
                     "knob2",
                     None::<&str>,
+                    None::<&str>,
                     75.0,
                     get_set(&mut self.knob2),
                     || {},
@@ -204,6 +206,7 @@ impl eframe::App for TestApp {
                     ui,
                     "knob3",
                     None::<&str>,
+                    None::<&str>,
                     100.0,
                     get_set(&mut self.knob),
                     || {},
@@ -213,6 +216,7 @@ impl eframe::App for TestApp {
                 knob(
                     ui,
                     "knob4",
+                    None::<&str>,
                     None::<&str>,
                     125.0,
                     get_set(&mut self.knob2),

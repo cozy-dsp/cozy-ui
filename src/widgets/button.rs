@@ -17,12 +17,14 @@ static LIGHT_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
         .unwrap()
 });
 
-pub fn toggle<GetSet, Start, End>(
+#[allow(clippy::too_many_arguments)]
+pub fn toggle<GetSet, Start, End, Text>(
     ui: &mut Ui,
     id: &str,
+    description: Option<Text>,
     mut value: GetSet,
     small: bool,
-    text: impl Into<WidgetText>,
+    text: Text,
     begin_set: Start,
     end_set: End,
 ) -> egui::Response
@@ -30,6 +32,7 @@ where
     GetSet: FnMut(Option<bool>) -> bool,
     Start: Fn(),
     End: Fn(),
+    Text: Into<WidgetText>
 {
     let text: WidgetText = text.into();
     let mut button_padding = ui.spacing().button_padding;
@@ -50,7 +53,9 @@ where
     }
 
     let (rect, mut response) = ui.allocate_at_least(desired_size, Sense::click());
-    response.widget_info(|| WidgetInfo::labeled(WidgetType::Button, galley.text()));
+    if let Some(description) = description {
+        response = response.on_hover_text_at_pointer(description.into());
+    }
 
     let mut new_value = get(&mut value);
     if response.clicked() {
@@ -60,6 +65,8 @@ where
         end_set();
         response.mark_changed();
     }
+    response.widget_info(|| WidgetInfo::labeled(WidgetType::Button, galley.text()));
+
     let animated_value = ui
         .ctx()
         .animate_bool(format!("button_{id}_light").into(), new_value);

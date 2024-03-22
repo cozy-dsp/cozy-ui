@@ -1,5 +1,5 @@
 use colorgrad::{BasisGradient, Color, Gradient, GradientBuilder};
-use egui::{epaint::PathShape, remap_clamp, Color32, Painter, Response, Sense, Stroke, Ui, Vec2};
+use egui::{epaint::PathShape, remap_clamp, Color32, Painter, Response, Sense, Stroke, Ui, Vec2, WidgetText};
 use once_cell::sync::Lazy;
 
 use crate::{
@@ -20,9 +20,11 @@ static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
         .unwrap()
 });
 
-pub fn knob<GetSet, Start, End>(
+#[allow(clippy::too_many_arguments)]
+pub fn knob<GetSet, Start, End, Text>(
     ui: &mut Ui,
     id: &str,
+    description: Option<Text>,
     diameter: f32,
     mut value: GetSet,
     drag_started: Start,
@@ -33,10 +35,13 @@ where
     GetSet: FnMut(Option<f32>) -> f32,
     Start: Fn(),
     End: Fn(),
+    Text: Into<WidgetText>
 {
     let desired_size = Vec2::splat(diameter + 5.0);
-    let (rect, response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
-    let mut response = response.on_hover_text_at_pointer("text");
+    let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
+    if let Some(description) = description {
+        response = response.on_hover_text_at_pointer(description.into());
+    }
     let mut granular = false;
     let hovered = response.hovered() || response.dragged();
 

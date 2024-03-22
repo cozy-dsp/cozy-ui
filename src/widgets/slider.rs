@@ -1,12 +1,14 @@
-use egui::{lerp, pos2, remap_clamp, vec2, Color32, Rect, Response, Rounding, Sense, Ui, Vec2};
+use egui::{lerp, pos2, remap_clamp, vec2, Color32, Rect, Response, Rounding, Sense, Ui, Vec2, WidgetText};
 
 use crate::colors::HIGHLIGHT_COL32;
 
 use super::{get, set};
 
-pub fn slider<GetSet, Start, End>(
+#[allow(clippy::too_many_arguments)]
+pub fn slider<GetSet, Start, End, Text>(
     ui: &mut Ui,
     id: &str,
+    description: Option<Text>,
     width: Option<f32>,
     mut value: GetSet,
     drag_started: Start,
@@ -17,9 +19,14 @@ where
     GetSet: FnMut(Option<f32>) -> f32,
     Start: Fn(),
     End: Fn(),
+    Text: Into<WidgetText>
 {
     let desired_size = vec2(width.unwrap_or(ui.spacing().slider_width), 15.0);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
+    if let Some(description) = description {
+        response = response.on_hover_text_at_pointer(description.into());
+    }
+
     let handle_radius = rect.height() / 2.5;
     let handle_radius_aspect = handle_radius * 0.5;
     let position_range = rect.x_range().shrink(handle_radius);
@@ -32,7 +39,7 @@ where
         }) {
             ui.memory_mut(|mem| {
                 mem.data
-                    .insert_temp(format!("slider_{id}_begin_set").into(), true)
+                    .insert_temp(format!("slider_{id}_begin_set").into(), true);
             });
             drag_started();
         }
@@ -51,7 +58,7 @@ where
     {
         ui.memory_mut(|mem| {
             mem.data
-                .insert_temp(format!("slider_{id}_begin_set").into(), false)
+                .insert_temp(format!("slider_{id}_begin_set").into(), false);
         });
         drag_ended();
     }

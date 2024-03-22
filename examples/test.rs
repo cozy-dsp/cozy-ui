@@ -183,6 +183,7 @@ impl eframe::App for TestApp {
                 knob(
                     ui,
                     "knob1",
+                    None::<&str>,
                     50.0,
                     get_set(&mut self.knob),
                     || {},
@@ -192,6 +193,7 @@ impl eframe::App for TestApp {
                 knob(
                     ui,
                     "knob2",
+                    None::<&str>,
                     75.0,
                     get_set(&mut self.knob2),
                     || {},
@@ -201,6 +203,7 @@ impl eframe::App for TestApp {
                 knob(
                     ui,
                     "knob3",
+                    None::<&str>,
                     100.0,
                     get_set(&mut self.knob),
                     || {},
@@ -210,6 +213,7 @@ impl eframe::App for TestApp {
                 knob(
                     ui,
                     "knob4",
+                    None::<&str>,
                     125.0,
                     get_set(&mut self.knob2),
                     || {},
@@ -220,6 +224,7 @@ impl eframe::App for TestApp {
             toggle(
                 ui,
                 "button1",
+                None::<&str>,
                 get_set(&mut self.button),
                 false,
                 "button 1",
@@ -229,6 +234,7 @@ impl eframe::App for TestApp {
             toggle(
                 ui,
                 "button2",
+                None::<&str>,
                 get_set(&mut self.button2),
                 false,
                 "button 2",
@@ -238,6 +244,7 @@ impl eframe::App for TestApp {
             slider(
                 ui,
                 "slider1",
+                Some("this is a slider.\ndo newlines work?"),
                 None,
                 get_set(&mut self.knob),
                 || {},

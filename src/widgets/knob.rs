@@ -24,11 +24,11 @@ static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
 });
 
 #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
-pub fn knob<GetSet, Start, End, Text>(
+pub fn knob<GetSet, Start, End, Label, Description>(
     ui: &mut Ui,
     id: &str,
-    label: Option<Text>,
-    description: Option<Text>,
+    label: Option<Label>,
+    description: Option<Description>,
     diameter: f32,
     mut value: GetSet,
     drag_started: Start,
@@ -39,8 +39,9 @@ where
     GetSet: FnMut(Option<f32>) -> f32,
     Start: Fn(),
     End: Fn(),
-    Text: Into<WidgetText>,
-    WidgetText: From<Text>,
+    Label: Into<WidgetText>,
+    Description: Into<WidgetText>,
+    WidgetText: From<Label>,
 {
     let mut desired_size = Vec2::splat(diameter + 5.0);
     let galley = label.map_or_else(

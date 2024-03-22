@@ -3,6 +3,7 @@ use std::time::Duration;
 use cozy_ui::widgets::button::toggle;
 use cozy_ui::widgets::knob::knob;
 
+use cozy_ui::widgets::slider::slider;
 use egui::CentralPanel;
 
 use egui::util::History;
@@ -216,8 +217,33 @@ impl eframe::App for TestApp {
                     0.5,
                 );
             });
-            toggle(ui, "button1", get_set(&mut self.button), false, "button 1", || {}, || {});
-            toggle(ui, "button2", get_set(&mut self.button2), false, "button 2", || {}, || {});
+            toggle(
+                ui,
+                "button1",
+                get_set(&mut self.button),
+                false,
+                "button 1",
+                || {},
+                || {},
+            );
+            toggle(
+                ui,
+                "button2",
+                get_set(&mut self.button2),
+                false,
+                "button 2",
+                || {},
+                || {},
+            );
+            slider(
+                ui,
+                "slider1",
+                None,
+                get_set(&mut self.knob),
+                || {},
+                || {},
+                0.5,
+            );
             ui.label(format!("fps: {}", self.frame_history.fps()));
             if let Some(usage) = frame.info().cpu_usage {
                 self.frame_usages[self.frame_idx] = usage;

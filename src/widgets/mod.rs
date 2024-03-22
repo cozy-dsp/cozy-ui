@@ -1,5 +1,6 @@
 pub mod button;
 pub mod knob;
+pub mod slider;
 
 fn get<T, GetSet>(getter: &mut GetSet) -> T
 where

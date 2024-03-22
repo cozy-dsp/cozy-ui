@@ -1,7 +1,8 @@
-use std::sync::Arc;
-
 use colorgrad::{BasisGradient, Color, Gradient, GradientBuilder};
-use egui::{epaint::PathShape, pos2, remap_clamp, Color32, Galley, Painter, Response, Rounding, Sense, Stroke, TextStyle, Ui, Vec2, WidgetText};
+use egui::{
+    epaint::PathShape, pos2, remap_clamp, Color32, Painter, Response, Sense, Stroke, TextStyle, Ui,
+    Vec2, WidgetText,
+};
 use once_cell::sync::Lazy;
 
 use crate::{
@@ -39,16 +40,24 @@ where
     Start: Fn(),
     End: Fn(),
     Text: Into<WidgetText>,
-    WidgetText: From<Text>
+    WidgetText: From<Text>,
 {
     let mut desired_size = Vec2::splat(diameter + 5.0);
-    let galley = label.map_or_else(|| None, |label| {
-            let galley = WidgetText::from(label).into_galley(ui, Some(false), desired_size.x, TextStyle::Body);
+    let galley = label.map_or_else(
+        || None,
+        |label| {
+            let galley = WidgetText::from(label).into_galley(
+                ui,
+                Some(false),
+                desired_size.x,
+                TextStyle::Body,
+            );
             let height_difference = galley.size().y + ui.spacing().item_spacing.y;
             desired_size.y += height_difference;
             desired_size.x = desired_size.x.max(galley.size().x);
             Some(galley)
-        });
+        },
+    );
     let (full_rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
     if let Some(description) = description {
         response = response.on_hover_text_at_pointer(description.into());
@@ -168,7 +177,14 @@ where
 
         if let Some(text_rect) = text_rect {
             if let Some(galley) = galley {
-                ui.painter().galley(pos2(text_rect.center().x - galley.size().x / 2.0, 0.5f32.mul_add(-galley.size().y, text_rect.center().y)), galley, Color32::WHITE);
+                ui.painter().galley(
+                    pos2(
+                        text_rect.center().x - galley.size().x / 2.0,
+                        0.5f32.mul_add(-galley.size().y, text_rect.center().y),
+                    ),
+                    galley,
+                    Color32::WHITE,
+                );
             }
         }
     }

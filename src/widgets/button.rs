@@ -1,4 +1,4 @@
-use colorgrad::{BasisGradient, Color, GradientBuilder, Gradient};
+use colorgrad::{BasisGradient, Color, Gradient, GradientBuilder};
 use egui::{
     pos2, vec2, Color32, NumExt, Rect, Rounding, Sense, Stroke, TextStyle, Ui, Vec2, WidgetInfo,
     WidgetText, WidgetType,
@@ -60,7 +60,9 @@ where
         end_set();
         response.mark_changed();
     }
-    let animated_value = ui.ctx().animate_bool(format!("button_{id}_light").into(), new_value);
+    let animated_value = ui
+        .ctx()
+        .animate_bool(format!("button_{id}_light").into(), new_value);
 
     if ui.is_rect_visible(rect) {
         let visuals = ui.style().interact(&response);
@@ -92,12 +94,8 @@ where
             light_rect_pos,
             vec2(4.0, 2.0f32.mul_add(-button_padding.y, rect.height())),
         );
-        ui.painter().rect(
-            light_rect,
-            Rounding::same(10.0),
-            light_color,
-            Stroke::NONE,
-        );
+        ui.painter()
+            .rect(light_rect, Rounding::same(10.0), light_color, Stroke::NONE);
         ui.painter().galley(text_pos, galley, visuals.text_color());
     }
 

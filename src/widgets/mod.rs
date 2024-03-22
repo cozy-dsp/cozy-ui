@@ -2,6 +2,10 @@ pub mod button;
 pub mod knob;
 pub mod slider;
 
+pub use button::toggle;
+pub use knob::knob;
+pub use slider::slider;
+
 fn get<T, GetSet>(getter: &mut GetSet) -> T
 where
     GetSet: FnMut(Option<T>) -> T,

@@ -32,7 +32,7 @@ where
     GetSet: FnMut(Option<bool>) -> bool,
     Start: Fn(),
     End: Fn(),
-    Text: Into<WidgetText>
+    Text: Into<WidgetText>,
 {
     let text: WidgetText = text.into();
     let mut button_padding = ui.spacing().button_padding;

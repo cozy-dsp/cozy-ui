@@ -1,4 +1,6 @@
-use egui::{lerp, pos2, remap_clamp, vec2, Color32, Rect, Response, Rounding, Sense, Ui, Vec2, WidgetText};
+use egui::{
+    lerp, pos2, remap_clamp, vec2, Color32, Rect, Response, Rounding, Sense, Ui, Vec2, WidgetText,
+};
 
 use crate::colors::HIGHLIGHT_COL32;
 
@@ -19,7 +21,7 @@ where
     GetSet: FnMut(Option<f32>) -> f32,
     Start: Fn(),
     End: Fn(),
-    Text: Into<WidgetText>
+    Text: Into<WidgetText>,
 {
     let desired_size = vec2(width.unwrap_or(ui.spacing().slider_width), 15.0);
     let (rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());

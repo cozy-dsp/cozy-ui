@@ -78,7 +78,7 @@ where
         drag_ended();
     }
 
-    if response.hovered() && response.ctx.input(|i| i.pointer.primary_down()) {
+    if response.hovered() {
         granular = response.ctx.input(|i| i.modifiers.shift);
     }
 
@@ -101,10 +101,10 @@ where
     } else if response.hovered()
         && response
             .ctx
-            .input(|input| input.smooth_scroll_delta.length() > 0.0)
+            .input(|input| input.raw_scroll_delta.length() > 0.0)
     {
         drag_started();
-        let drag_delta = response.ctx.input(|input| input.smooth_scroll_delta);
+        let drag_delta = response.ctx.input(|input| input.raw_scroll_delta);
         granular = response.ctx.input(|i| i.modifiers.shift);
         let diameter_scale = if granular { 4.0 } else { 2.0 };
 
@@ -118,7 +118,7 @@ where
         drag_ended();
     }
 
-    if response.drag_released() {
+    if response.drag_stopped() {
         drag_ended();
     }
 

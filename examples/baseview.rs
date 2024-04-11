@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
 use cozy_ui::widgets::button::toggle;
 use cozy_ui::widgets::knob::knob;
 
@@ -7,7 +8,9 @@ use cozy_ui::widgets::slider::slider;
 use egui::{include_image, CentralPanel, RichText, TopBottomPanel, Window};
 
 use egui::util::History;
+use egui_baseview::EguiWindow;
 use egui_extras::install_image_loaders;
+use libsw::Sw;
 
 pub struct FrameHistory {
     frame_times: History<f32>,
@@ -136,20 +139,21 @@ impl FrameHistory {
 
 const SAMPLES: usize = 1024;
 
-fn main() -> Result<(), eframe::Error> {
-    let options = eframe::NativeOptions {
-        viewport: egui::ViewportBuilder::default().with_inner_size([320.0, 240.0]),
-        ..Default::default()
+fn main() {
+    let options = WindowOpenOptions {
+        title: String::from("egui-baseview simple demo"),
+        size: Size::new(320.0, 240.0),
+        scale: WindowScalePolicy::SystemScaleFactor,
+        gl_config: Some(Default::default()),
     };
-    eframe::run_native(
-        "My egui App",
-        options,
-        Box::new(|cc| {
-            cozy_ui::setup(&cc.egui_ctx);
-            install_image_loaders(&cc.egui_ctx);
-            Box::<TestApp>::default()
-        }),
-    )
+    
+    EguiWindow::open_blocking(options, TestApp::default(), |ctx, _sex, state| {
+        cozy_ui::setup(ctx);
+        install_image_loaders(ctx);
+        state.stopwatch.start().unwrap();
+    }, |ctx, _sex, state| {
+        state.update(ctx);
+    })
 }
 
 struct TestApp {
@@ -158,6 +162,7 @@ struct TestApp {
     button: bool,
     button2: bool,
     show_about: bool,
+    stopwatch: Sw,
     frame_history: FrameHistory,
     frame_idx: usize,
     frame_usages: [f32; SAMPLES],
@@ -171,6 +176,7 @@ impl Default for TestApp {
             button: false,
             button2: false,
             show_about: false,
+            stopwatch: Sw::default(),
             frame_history: FrameHistory::default(),
             frame_idx: Default::default(),
             frame_usages: [0.0; SAMPLES],
@@ -178,10 +184,12 @@ impl Default for TestApp {
     }
 }
 
-impl eframe::App for TestApp {
-    fn update(&mut self, ctx: &egui::Context, frame: &mut eframe::Frame) {
+impl TestApp {
+    fn update(&mut self, ctx: &egui::Context) {
+        let frame_time = Some(self.stopwatch.elapsed().as_millis() as f32);
+        self.stopwatch.reset_in_place();
         self.frame_history
-            .on_new_frame(ctx.input(|i| i.time), frame.info().cpu_usage);
+            .on_new_frame(ctx.input(|i| i.time), frame_time);
         TopBottomPanel::top("top").show(ctx, |ui| {
             if ui.button("About").clicked() {
                 self.show_about = !self.show_about;
@@ -267,7 +275,7 @@ impl eframe::App for TestApp {
                 0.5,
             );
             ui.label(format!("fps: {}", self.frame_history.fps()));
-            if let Some(usage) = frame.info().cpu_usage {
+            if let Some(usage) = frame_time {
                 self.frame_usages[self.frame_idx] = usage;
                 self.frame_idx = (self.frame_idx + 1) % SAMPLES;
             }

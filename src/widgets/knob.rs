@@ -7,13 +7,13 @@ use once_cell::sync::Lazy;
 
 use crate::{
     colors::{HIGHLIGHT, PURPLE_COL32, WIDGET_BACKGROUND_COL32},
-    util::CIRCLE_POINTS,
+    util::generate_arc,
 };
 
 use super::{get, set};
 
-const LOWER_DEG: usize = 45;
-const HIGHER_DEG: usize = 315;
+const START_DEG: f32 = 225.0;
+const END_DEG: f32 = -45.0;
 
 static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
     GradientBuilder::new()
@@ -146,7 +146,7 @@ where
             WIDGET_BACKGROUND_COL32,
         );
 
-        knob_track(&painter, radius, stroke_color);
+        generate_arc(&painter, painter.clip_rect().center(), radius, 225.0_f32.to_radians(), -45.0_f32.to_radians(), Stroke::new(radius * 0.1, stroke_color));
 
         painter.circle_stroke(
             painter.clip_rect().center(),
@@ -157,18 +157,15 @@ where
             ),
         );
 
-        #[allow(clippy::cast_precision_loss)]
-        let tick_angle_f32 = remap_clamp(value, 0.0..=1.0, HIGHER_DEG as f32..=LOWER_DEG as f32);
-        #[allow(clippy::cast_sign_loss, clippy::cast_possible_truncation)]
-        let tick_angle = tick_angle_f32.round() as usize;
+        let tick_angle = remap_clamp(value, 0.0..=1.0, START_DEG..=END_DEG);
 
-        star(&painter, tick_angle_f32, diameter);
+        star(&painter, tick_angle, diameter);
 
-        let (tick_sin, tick_cos) = CIRCLE_POINTS[tick_angle - 1];
+        let (tick_sin, tick_cos) = tick_angle.to_radians().sin_cos();
         let first_point = painter.clip_rect().center()
-            + Vec2::new(radius * 0.5 * tick_sin, radius * 0.5 * tick_cos);
+            + Vec2::new(radius * 0.5 * tick_cos, radius * 0.5 * -tick_sin);
         let second_point =
-            painter.clip_rect().center() + Vec2::new(radius * tick_sin, radius * tick_cos);
+            painter.clip_rect().center() + Vec2::new(radius * tick_cos, radius * -tick_sin);
         painter.line_segment(
             [first_point, second_point],
             Stroke::new(background_radius * 0.15, Color32::WHITE),
@@ -191,20 +188,6 @@ where
     }
 
     response
-}
-
-fn knob_track(painter: &Painter, radius: f32, stroke_color: Color32) {
-    let mut points = Vec::with_capacity(HIGHER_DEG - LOWER_DEG + 1);
-    for deg in LOWER_DEG..=HIGHER_DEG {
-        let (sin, cos) = CIRCLE_POINTS[deg - 1];
-
-        points.push(painter.clip_rect().center() + Vec2::new(radius * sin, radius * cos));
-    }
-
-    painter.add(PathShape::line(
-        points,
-        Stroke::new(radius * 0.1, stroke_color),
-    ));
 }
 
 fn star(painter: &Painter, angle: f32, diameter: f32) {

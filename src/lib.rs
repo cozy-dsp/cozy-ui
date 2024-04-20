@@ -1,6 +1,3 @@
-#![warn(clippy::nursery)]
-#![warn(clippy::pedantic)]
-
 use colors::{BACKGROUND, WIDGET_BACKGROUND_COL32};
 use egui::{epaint::Shadow, vec2, Color32, Context, InnerResponse, Ui};
 
@@ -26,7 +23,11 @@ pub fn setup(ctx: &Context) {
     });
 }
 
-pub fn centered<R>(ctx: &Context, ui: &mut Ui, add_contents: impl FnOnce(&mut Ui) -> R) -> InnerResponse<R> {
+pub fn centered<R>(
+    ctx: &Context,
+    ui: &mut Ui,
+    add_contents: impl FnOnce(&mut Ui) -> R,
+) -> InnerResponse<R> {
     let layer_id = egui::LayerId::new(egui::Order::Foreground, ui.next_auto_id());
     ui.with_layer_id(layer_id, |ui| {
         let resp = add_contents(ui);

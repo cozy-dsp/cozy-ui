@@ -2,9 +2,9 @@ use std::time::Duration;
 
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
 use cozy_ui::widgets::button::toggle;
-use cozy_ui::widgets::knob::knob;
 
 use cozy_ui::widgets::slider::slider;
+use cozy_ui::widgets::Knob;
 use egui::{include_image, CentralPanel, RichText, TopBottomPanel, Window};
 
 use egui::util::History;
@@ -146,14 +146,19 @@ fn main() {
         scale: WindowScalePolicy::SystemScaleFactor,
         gl_config: Some(Default::default()),
     };
-    
-    EguiWindow::open_blocking(options, TestApp::default(), |ctx, _sex, state| {
-        cozy_ui::setup(ctx);
-        install_image_loaders(ctx);
-        state.stopwatch.start().unwrap();
-    }, |ctx, _sex, state| {
-        state.update(ctx);
-    })
+
+    EguiWindow::open_blocking(
+        options,
+        TestApp::default(),
+        |ctx, _sex, state| {
+            cozy_ui::setup(ctx);
+            install_image_loaders(ctx);
+            state.stopwatch.start().unwrap();
+        },
+        |ctx, _sex, state| {
+            state.update(ctx);
+        },
+    )
 }
 
 struct TestApp {
@@ -199,49 +204,22 @@ impl TestApp {
         });
         CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                knob(
-                    ui,
-                    "knob1",
-                    Some("I GOT LABELS"),
-                    None::<&str>,
-                    50.0,
-                    get_set(&mut self.knob),
-                    || {},
-                    || {},
-                    0.5,
+                ui.add(
+                    Knob::new("knob1", 50.0, get_set(&mut self.knob), || {}, || {})
+                        .label("I GOT LABELS")
+                        .default_value(0.5),
                 );
-                knob(
-                    ui,
-                    "knob2",
-                    None::<&str>,
-                    None::<&str>,
-                    75.0,
-                    get_set(&mut self.knob2),
-                    || {},
-                    || {},
-                    0.5,
+                ui.add(
+                    Knob::new("knob2", 75.0, get_set(&mut self.knob2), || {}, || {})
+                        .default_value(0.5),
                 );
-                knob(
-                    ui,
-                    "knob3",
-                    None::<&str>,
-                    None::<&str>,
-                    100.0,
-                    get_set(&mut self.knob),
-                    || {},
-                    || {},
-                    0.5,
+                ui.add(
+                    Knob::new("knob3", 100.0, get_set(&mut self.knob), || {}, || {})
+                        .default_value(0.5),
                 );
-                knob(
-                    ui,
-                    "knob4",
-                    None::<&str>,
-                    None::<&str>,
-                    125.0,
-                    get_set(&mut self.knob2),
-                    || {},
-                    || {},
-                    0.5,
+                ui.add(
+                    Knob::new("knob4", 125.0, get_set(&mut self.knob2), || {}, || {})
+                        .default_value(0.5),
                 );
             });
             toggle(
@@ -284,12 +262,14 @@ impl TestApp {
                 Duration::from_secs_f32(self.frame_usages.iter().sum::<f32>() / SAMPLES as f32)
             ));
         });
-        Window::new("About").open(&mut self.show_about).show(ctx, |ui| {
-            ui.image(include_image!("Cozy_logo.png"));
-            ui.heading(RichText::new("Example Plugin").strong());
-            ui.label(RichText::new("version here").italics());
-            ui.hyperlink_to("GitHub", "https://crouton.net");
-        });
+        Window::new("About")
+            .open(&mut self.show_about)
+            .show(ctx, |ui| {
+                ui.image(include_image!("Cozy_logo.png"));
+                ui.heading(RichText::new("Example Plugin").strong());
+                ui.label(RichText::new("version here").italics());
+                ui.hyperlink_to("GitHub", "https://crouton.net");
+            });
         ctx.request_repaint();
     }
 }

@@ -35,7 +35,7 @@ pub struct Knob<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> {
 }
 
 impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Knob<'a, GetSet, Start, End> {
-    pub fn new(id: &'a str, diameter: f32, value: GetSet, begin_set: Start, end_set: End) -> Self {
+    pub const fn new(id: &'a str, diameter: f32, value: GetSet, begin_set: Start, end_set: End) -> Self {
         Self {
             id,
             diameter,
@@ -58,7 +58,7 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Knob<'a, Get
         self
     }
 
-    pub fn default_value(mut self, default: f32) -> Self {
+    pub const fn default_value(mut self, default: f32) -> Self {
         self.default = Some(default);
         self
     }

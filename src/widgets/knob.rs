@@ -23,6 +23,16 @@ static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
         .unwrap()
 });
 
+pub fn knob<GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()>(
+    id: &str,
+    diameter: f32,
+    value: GetSet,
+    begin_set: Start,
+    end_set: End,
+) -> Knob<'_, GetSet, Start, End> {
+    Knob::new(id, diameter, value, begin_set, end_set)
+}
+
 pub struct Knob<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> {
     id: &'a str,
     label: Option<WidgetText>,
@@ -32,10 +42,17 @@ pub struct Knob<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> {
     begin_set: Start,
     end_set: End,
     default: Option<f32>,
+    modulated: Option<f32>,
 }
 
 impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Knob<'a, GetSet, Start, End> {
-    pub const fn new(id: &'a str, diameter: f32, value: GetSet, begin_set: Start, end_set: End) -> Self {
+    pub const fn new(
+        id: &'a str,
+        diameter: f32,
+        value: GetSet,
+        begin_set: Start,
+        end_set: End,
+    ) -> Self {
         Self {
             id,
             diameter,
@@ -45,6 +62,7 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Knob<'a, Get
             label: None,
             description: None,
             default: None,
+            modulated: None,
         }
     }
 
@@ -62,6 +80,11 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Knob<'a, Get
         self.default = Some(default);
         self
     }
+
+    pub const fn modulated_value(mut self, value: f32) -> Self {
+        self.modulated = Some(value);
+        self
+    }
 }
 
 impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
@@ -72,12 +95,7 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
         let galley = self.label.map_or_else(
             || None,
             |label| {
-                let galley = label.into_galley(
-                    ui,
-                    Some(false),
-                    desired_size.x,
-                    TextStyle::Body,
-                );
+                let galley = label.into_galley(ui, Some(false), desired_size.x, TextStyle::Body);
                 let height_difference = galley.size().y + ui.spacing().item_spacing.y;
                 desired_size.y += height_difference;
                 desired_size.x = desired_size.x.max(galley.size().x);
@@ -112,6 +130,7 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
         }
 
         if response.drag_started() {
+            ui.ctx().set_cursor_icon(egui::CursorIcon::None);
             (self.begin_set)();
         }
 
@@ -133,9 +152,9 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
                 .input(|input| input.raw_scroll_delta.length() > 0.0)
         {
             (self.begin_set)();
-            let drag_delta = response.ctx.input(|input| input.raw_scroll_delta);
+            let drag_delta = response.ctx.input(|input| input.smooth_scroll_delta);
             granular = response.ctx.input(|i| i.modifiers.shift);
-            let diameter_scale = if granular { 4.0 } else { 2.0 };
+            let diameter_scale = if granular { 8.0 } else { 4.0 };
 
             let delta = -(drag_delta.x + drag_delta.y);
             let mut new_value = get(&mut self.value);
@@ -148,6 +167,7 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
         }
 
         if response.drag_stopped() {
+            ui.ctx().set_cursor_icon(egui::CursorIcon::Default);
             (self.end_set)();
         }
 
@@ -185,6 +205,23 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
                 Stroke::new(radius * 0.1, stroke_color),
             );
 
+            let value_angle = remap_clamp(value, 0.0..=1.0, START_DEG..=END_DEG);
+
+            star(&painter, value_angle, self.diameter);
+
+            if let Some(modulated) = self.modulated {
+                let modulated_angle = remap_clamp(modulated, 0.0..=1.0, START_DEG..=END_DEG);
+
+                generate_arc(
+                    &painter,
+                    painter.clip_rect().center(),
+                    radius * 0.75,
+                    value_angle.to_radians(),
+                    modulated_angle.to_radians(),
+                    Stroke::new(radius * 0.07, Color32::from_rgb(133, 19, 173)),
+                );
+            }
+
             painter.circle_stroke(
                 painter.clip_rect().center(),
                 focus_ring_radius,
@@ -194,11 +231,7 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
                 ),
             );
 
-            let tick_angle = remap_clamp(value, 0.0..=1.0, START_DEG..=END_DEG);
-
-            star(&painter, tick_angle, self.diameter);
-
-            let (tick_sin, tick_cos) = tick_angle.to_radians().sin_cos();
+            let (tick_sin, tick_cos) = value_angle.to_radians().sin_cos();
             let first_point = painter.clip_rect().center()
                 + Vec2::new(radius * 0.5 * tick_cos, radius * 0.5 * -tick_sin);
             let second_point =

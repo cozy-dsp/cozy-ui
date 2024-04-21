@@ -198,7 +198,8 @@ impl eframe::App for TestApp {
                 );
                 ui.add(
                     Knob::new("knob2", 75.0, get_set(&mut self.knob2), || {}, || {})
-                        .default_value(0.5),
+                        .default_value(0.5)
+                        .modulated_value(0.75),
                 );
                 ui.add(
                     Knob::new("knob3", 100.0, get_set(&mut self.knob), || {}, || {})
@@ -206,38 +207,28 @@ impl eframe::App for TestApp {
                 );
                 ui.add(
                     Knob::new("knob4", 125.0, get_set(&mut self.knob2), || {}, || {})
-                        .default_value(0.5),
+                        .default_value(0.5)
+                        .modulated_value(0.75),
                 );
             });
-            toggle(
-                ui,
+            ui.add(toggle(
                 "button1",
-                None::<&str>,
-                get_set(&mut self.button),
-                false,
                 "button 1",
+                get_set(&mut self.button),
                 || {},
                 || {},
-            );
-            toggle(
-                ui,
+            ));
+            ui.add(toggle(
                 "button2",
-                None::<&str>,
-                get_set(&mut self.button2),
-                false,
                 "button 2",
+                get_set(&mut self.button2),
                 || {},
                 || {},
-            );
-            slider(
-                ui,
-                "slider1",
-                Some("this is a slider.\ndo newlines work?"),
-                None,
-                get_set(&mut self.knob),
-                || {},
-                || {},
-                0.5,
+            ));
+            ui.add(
+                slider("slider1", get_set(&mut self.knob), || {}, || {})
+                    .description("this is a slider.\ndo newlines work?")
+                    .default_value(0.5),
             );
             ui.label(format!("fps: {}", self.frame_history.fps()));
             if let Some(usage) = frame.info().cpu_usage {

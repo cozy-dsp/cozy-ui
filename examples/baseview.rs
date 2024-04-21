@@ -222,35 +222,27 @@ impl TestApp {
                         .default_value(0.5),
                 );
             });
-            toggle(
-                ui,
+            ui.add(toggle(
                 "button1",
-                None::<&str>,
-                get_set(&mut self.button),
-                false,
                 "button 1",
+                get_set(&mut self.button),
                 || {},
                 || {},
+            ));
+            ui.add(
+                toggle(
+                    "button2",
+                    "button 2",
+                    get_set(&mut self.button2),
+                    || {},
+                    || {},
+                )
+                .small(),
             );
-            toggle(
-                ui,
-                "button2",
-                None::<&str>,
-                get_set(&mut self.button2),
-                false,
-                "button 2",
-                || {},
-                || {},
-            );
-            slider(
-                ui,
-                "slider1",
-                Some("this is a slider.\ndo newlines work?"),
-                None,
-                get_set(&mut self.knob),
-                || {},
-                || {},
-                0.5,
+            ui.add(
+                slider("slider1", get_set(&mut self.knob), || {}, || {})
+                    .description("this is a slider.\ndo newlines work?")
+                    .default_value(0.5),
             );
             ui.label(format!("fps: {}", self.frame_history.fps()));
             if let Some(usage) = frame_time {

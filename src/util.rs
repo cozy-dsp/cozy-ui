@@ -2,6 +2,8 @@ use std::f32::consts::PI;
 
 use egui::{epaint::CubicBezierShape, Color32, Painter, Pos2, Shape, Stroke, Vec2};
 
+pub mod get_set;
+
 const PI_OVER_2: f32 = PI / 2.0;
 
 struct AngleIter {

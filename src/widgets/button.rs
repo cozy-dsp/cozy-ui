@@ -5,7 +5,7 @@ use egui::{
 };
 use once_cell::sync::Lazy;
 
-use crate::colors::{BACKGROUND, HIGHLIGHT};
+use crate::{colors::{BACKGROUND, HIGHLIGHT}, util::get_set::Operation};
 
 use super::{get, set};
 
@@ -17,7 +17,7 @@ static LIGHT_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
         .unwrap()
 });
 
-pub fn toggle<GetSet: FnMut(Option<bool>) -> bool, Start: Fn(), End: Fn()>(
+pub fn toggle<GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()>(
     id: &str,
     text: impl Into<WidgetText>,
     value: GetSet,
@@ -27,7 +27,7 @@ pub fn toggle<GetSet: FnMut(Option<bool>) -> bool, Start: Fn(), End: Fn()>(
     ButtonToggle::new(id, text.into(), value, begin_set, end_set)
 }
 
-pub struct ButtonToggle<'a, GetSet: FnMut(Option<bool>) -> bool, Start: Fn(), End: Fn()> {
+pub struct ButtonToggle<'a, GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()> {
     id: &'a str,
     description: Option<WidgetText>,
     value: GetSet,
@@ -37,7 +37,7 @@ pub struct ButtonToggle<'a, GetSet: FnMut(Option<bool>) -> bool, Start: Fn(), En
     end_set: End,
 }
 
-impl<'a, GetSet: FnMut(Option<bool>) -> bool, Start: Fn(), End: Fn()>
+impl<'a, GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()>
     ButtonToggle<'a, GetSet, Start, End>
 {
     pub fn new(
@@ -69,7 +69,7 @@ impl<'a, GetSet: FnMut(Option<bool>) -> bool, Start: Fn(), End: Fn()>
     }
 }
 
-impl<GetSet: FnMut(Option<bool>) -> bool, Start: Fn(), End: Fn()> Widget
+impl<GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()> Widget
     for ButtonToggle<'_, GetSet, Start, End>
 {
     fn ui(mut self, ui: &mut Ui) -> egui::Response {

@@ -1,6 +1,7 @@
 use std::time::Duration;
 
 use baseview::{Size, WindowOpenOptions, WindowScalePolicy};
+use cozy_ui::util::get_set::Operation;
 use cozy_ui::widgets::button::toggle;
 
 use cozy_ui::widgets::slider::slider;
@@ -266,15 +267,15 @@ impl TestApp {
     }
 }
 
-fn get_set<T>(value: &mut T) -> impl FnMut(Option<T>) -> T + '_
+fn get_set<T>(value: &mut T) -> impl FnMut(Operation<T>) -> T + '_
 where
     T: Copy,
 {
     |v| match v {
-        Some(v) => {
+        Operation::Set(v) => {
             *value = v;
             v
         }
-        None => *value,
+        Operation::Get => *value,
     }
 }

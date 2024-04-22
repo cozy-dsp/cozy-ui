@@ -7,7 +7,7 @@ use once_cell::sync::Lazy;
 
 use crate::{
     colors::{HIGHLIGHT, PURPLE_COL32, WIDGET_BACKGROUND_COL32},
-    util::generate_arc,
+    util::{generate_arc, get_set::Operation},
 };
 
 use super::{get, set};
@@ -23,7 +23,7 @@ static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
         .unwrap()
 });
 
-pub fn knob<GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()>(
+pub fn knob<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>(
     id: &str,
     diameter: f32,
     value: GetSet,
@@ -33,7 +33,7 @@ pub fn knob<GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()>(
     Knob::new(id, diameter, value, begin_set, end_set)
 }
 
-pub struct Knob<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> {
+pub struct Knob<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> {
     id: &'a str,
     label: Option<WidgetText>,
     description: Option<WidgetText>,
@@ -45,7 +45,7 @@ pub struct Knob<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> {
     modulated: Option<f32>,
 }
 
-impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Knob<'a, GetSet, Start, End> {
+impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Knob<'a, GetSet, Start, End> {
     pub const fn new(
         id: &'a str,
         diameter: f32,
@@ -87,7 +87,7 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Knob<'a, Get
     }
 }
 
-impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
+impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Widget
     for Knob<'a, GetSet, Start, End>
 {
     fn ui(mut self, ui: &mut Ui) -> Response {

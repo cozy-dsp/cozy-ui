@@ -2,11 +2,11 @@ use egui::{
     lerp, pos2, remap_clamp, vec2, Color32, Rect, Rounding, Sense, Ui, Vec2, Widget, WidgetText,
 };
 
-use crate::colors::HIGHLIGHT_COL32;
+use crate::{colors::HIGHLIGHT_COL32, util::get_set::Operation};
 
 use super::{get, set};
 
-pub fn slider<GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()>(
+pub fn slider<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>(
     id: &str,
     value: GetSet,
     begin_set: Start,
@@ -15,7 +15,7 @@ pub fn slider<GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()>(
     Slider::new(id, value, begin_set, end_set)
 }
 
-pub struct Slider<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> {
+pub struct Slider<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> {
     id: &'a str,
     description: Option<WidgetText>,
     width: Option<f32>,
@@ -25,7 +25,7 @@ pub struct Slider<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()>
     end_set: End,
 }
 
-impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Slider<'a, GetSet, Start, End> {
+impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Slider<'a, GetSet, Start, End> {
     pub fn new(id: &'a str, value: GetSet, begin_set: Start, end_set: End) -> Self {
         Self {
             id,
@@ -54,7 +54,7 @@ impl<'a, GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Slider<'a, G
     }
 }
 
-impl<GetSet: FnMut(Option<f32>) -> f32, Start: Fn(), End: Fn()> Widget
+impl<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Widget
     for Slider<'_, GetSet, Start, End>
 {
     fn ui(mut self, ui: &mut Ui) -> egui::Response {

@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use cozy_ui::centered;
 use cozy_ui::util::get_set::Operation;
 use cozy_ui::widgets::button::toggle;
 use cozy_ui::widgets::knob::Knob;
@@ -192,25 +193,27 @@ impl eframe::App for TestApp {
         });
         CentralPanel::default().show(ctx, |ui| {
             ui.horizontal(|ui| {
-                ui.add(
-                    Knob::new("knob1", 50.0, get_set(&mut self.knob), || {}, || {})
-                        .label("I GOT LABELS")
-                        .default_value(0.5),
-                );
-                ui.add(
-                    Knob::new("knob2", 75.0, get_set(&mut self.knob2), || {}, || {})
-                        .default_value(0.5)
-                        .modulated_value(0.75),
-                );
-                ui.add(
-                    Knob::new("knob3", 100.0, get_set(&mut self.knob), || {}, || {})
-                        .default_value(0.5),
-                );
-                ui.add(
-                    Knob::new("knob4", 125.0, get_set(&mut self.knob2), || {}, || {})
-                        .default_value(0.5)
-                        .modulated_value(0.75),
-                );
+                centered(ctx, ui, |ui| {
+                    ui.add(
+                        Knob::new("knob1", 50.0, get_set(&mut self.knob), || {}, || {})
+                            .label("I GOT LABELS")
+                            .default_value(0.5),
+                    );
+                    ui.add(
+                        Knob::new("knob2", 75.0, get_set(&mut self.knob2), || {}, || {})
+                            .default_value(0.5)
+                            .modulated_value(0.75),
+                    );
+                    ui.add(
+                        Knob::new("knob3", 100.0, get_set(&mut self.knob), || {}, || {})
+                            .default_value(0.5),
+                    );
+                    ui.add(
+                        Knob::new("knob4", 125.0, get_set(&mut self.knob2), || {}, || {})
+                            .default_value(0.5)
+                            .modulated_value(0.75),
+                    );
+                })
             });
             ui.add(toggle(
                 "button1",

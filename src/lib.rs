@@ -23,12 +23,13 @@ pub fn setup(ctx: &Context) {
     });
 }
 
-pub fn centered<R>(
+/// centers a ui in the available space. this will not work properly with anything that's not in a panel.
+pub fn centered<R>( 
     ctx: &Context,
     ui: &mut Ui,
     add_contents: impl FnOnce(&mut Ui) -> R,
 ) -> InnerResponse<R> {
-    let layer_id = egui::LayerId::new(ui.layer_id().order, ui.next_auto_id());
+    let layer_id = egui::LayerId::new(egui::Order::PanelResizeLine, ui.next_auto_id());
     ui.with_layer_id(layer_id, |ui| {
         let resp = add_contents(ui);
 

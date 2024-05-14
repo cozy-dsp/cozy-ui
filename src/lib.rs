@@ -28,7 +28,7 @@ pub fn centered<R>(
     ui: &mut Ui,
     add_contents: impl FnOnce(&mut Ui) -> R,
 ) -> InnerResponse<R> {
-    let layer_id = egui::LayerId::new(egui::Order::Background, ui.next_auto_id());
+    let layer_id = egui::LayerId::new(ui.layer_id().order, ui.next_auto_id());
     ui.with_layer_id(layer_id, |ui| {
         let resp = add_contents(ui);
 

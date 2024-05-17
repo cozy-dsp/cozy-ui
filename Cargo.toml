@@ -7,12 +7,12 @@ edition = "2021"
 
 [dependencies]
 colorgrad = { git = "https://github.com/mazznoer/colorgrad-rs.git" }
-egui = { git = "https://github.com/emilk/egui", rev = "c1eb3f884db8bc4f52dbae4f261619cee651f411" }
-egui_extras = { git = "https://github.com/emilk/egui", rev = "c1eb3f884db8bc4f52dbae4f261619cee651f411", features = ["svg", "image"] }
+egui = "0.27"
+egui_extras = { version = "0.27", features = ["svg", "image"] }
 once_cell = { version = "1.19.0", features = ["parking_lot"] }
 
 [dev-dependencies]
-eframe = { git = "https://github.com/emilk/egui", rev = "c1eb3f884db8bc4f52dbae4f261619cee651f411" }
-egui-baseview = { git = "https://github.com/murl-digital/egui-baseview.git", branch = "egui-git" }
+eframe = "0.27"
+egui-baseview = { git = "https://github.com/BillyDM/egui-baseview" }
 baseview = { git = "https://github.com/RustAudio/baseview.git", rev = "45465c5f46abed6c6ce370fffde5edc8e4cd5aa3" }
 libsw = "3.3.1"

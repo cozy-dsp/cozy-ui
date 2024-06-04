@@ -1,0 +1,5 @@
+[registry]
+default = "cdsp"
+
+[registries.cdsp]
+index = "sparse+https://vcs.cozydsp.space/api/packages/cozy-dsp/cargo/"

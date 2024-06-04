@@ -6,7 +6,8 @@ use cozy_ui::widgets::button::toggle;
 
 use cozy_ui::widgets::slider::slider;
 use cozy_ui::widgets::Knob;
-use egui::{include_image, CentralPanel, RichText, TopBottomPanel, Window};
+use egui::text::{CCursor, CCursorRange};
+use egui::{include_image, CentralPanel, Frame, RichText, TextEdit, TopBottomPanel, Window};
 
 use egui::util::History;
 use egui_baseview::EguiWindow;
@@ -254,6 +255,28 @@ impl TestApp {
                 "frame time: {:#?}",
                 Duration::from_secs_f32(self.frame_usages.iter().sum::<f32>() / SAMPLES as f32)
             ));
+
+            let response = ui.button("tooltip text editing");
+            if response.clicked() || ui.memory_mut(|mem| *mem.data.get_temp_mut_or_default("test_open".into())) {
+                Frame::popup(ui.style()).show(ui, |ui| {
+                    let mut text = ui.memory_mut(|mem| mem.data.get_temp_mut_or("test".into(), "or_insert".to_string()).to_owned());
+                    let mut edit = TextEdit::singleline(&mut text).show(ui);
+
+                    if !ui.memory_mut(|mem| *mem.data.get_temp_mut_or_default::<bool>("test_open".into())) {
+                        edit.state.cursor.set_char_range(Some(CCursorRange::two(CCursor::new(0), CCursor::new(text.len()))));
+                        edit.state.store(ctx, edit.response.id);
+                        edit.response.request_focus();
+                    }
+
+                    if edit.response.lost_focus() {
+                        ui.memory_mut(|mem| mem.data.insert_temp("test_open".into(), false));
+                    } else {
+                        ui.memory_mut(|mem| mem.data.insert_temp("test_open".into(), true));
+                    }
+
+                    ui.memory_mut(|mem| mem.data.insert_temp("test".into(), text.to_owned()));
+                });
+            }
         });
         Window::new("About")
             .open(&mut self.show_about)

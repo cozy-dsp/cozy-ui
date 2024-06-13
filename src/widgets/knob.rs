@@ -95,7 +95,7 @@ impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Widget
         let galley = self.label.map_or_else(
             || None,
             |label| {
-                let galley = label.into_galley(ui, Some(false), desired_size.x, TextStyle::Body);
+                let galley = label.into_galley(ui, Some(egui::TextWrapMode::Extend), desired_size.x, TextStyle::Body);
                 let height_difference = galley.size().y + ui.spacing().item_spacing.y;
                 desired_size.y += height_difference;
                 desired_size.x = desired_size.x.max(galley.size().x);

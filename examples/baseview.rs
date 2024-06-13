@@ -146,7 +146,7 @@ fn main() {
         title: String::from("egui-baseview simple demo"),
         size: Size::new(320.0, 240.0),
         scale: WindowScalePolicy::SystemScaleFactor,
-        gl_config: Some(Default::default()),
+        //gl_config: Some(Default::default()),
     };
 
     EguiWindow::open_blocking(

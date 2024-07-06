@@ -8,19 +8,12 @@ license = "MPL-2.0"
 
 [dependencies]
 colorgrad = { git = "https://github.com/mazznoer/colorgrad-rs.git" }
-egui = "0.27"
-egui_extras = { version = "0.27", features = ["svg", "image"] }
+egui = "0.28"
+egui_extras = { version = "0.28", features = ["svg", "image"] }
 once_cell = { version = "1.19", features = ["parking_lot"] }
 
 [dev-dependencies]
-eframe = "0.27"
-egui-baseview = { git = "https://github.com/BillyDM/egui-baseview" }
+eframe = "0.28"
+egui-baseview = { git = "https://github.com/BillyDM/egui-baseview", rev = "9867bbf124dc5059931a4be6e101c115410328c1" }
 baseview = { git = "https://github.com/RustAudio/baseview.git", rev = "45465c5f46abed6c6ce370fffde5edc8e4cd5aa3" }
 libsw = "3.3.1"
-
-[patch.crates-io]
-egui = { git = "https://github.com/emilk/egui.git", rev = "814ad0783cf8b826a258e29ed4c50ae6daa2e890" }
-egui_extras = { git = "https://github.com/emilk/egui.git", rev = "814ad0783cf8b826a258e29ed4c50ae6daa2e890" }
-
-[patch."https://github.com/BillyDM/egui-baseview"]
-egui-baseview = {git = "https://github.com/murl-digital/egui-baseview", rev = "275cb4c3ed86d98ea557259383d71d2847b8babf"}

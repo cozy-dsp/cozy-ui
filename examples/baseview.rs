@@ -146,7 +146,7 @@ fn main() {
         title: String::from("egui-baseview simple demo"),
         size: Size::new(320.0, 240.0),
         scale: WindowScalePolicy::SystemScaleFactor,
-        //gl_config: Some(Default::default()),
+        gl_config: Some(Default::default()),
     };
 
     EguiWindow::open_blocking(
@@ -257,13 +257,24 @@ impl TestApp {
             ));
 
             let response = ui.button("tooltip text editing");
-            if response.clicked() || ui.memory_mut(|mem| *mem.data.get_temp_mut_or_default("test_open".into())) {
+            if response.clicked()
+                || ui.memory_mut(|mem| *mem.data.get_temp_mut_or_default("test_open".into()))
+            {
                 Frame::popup(ui.style()).show(ui, |ui| {
-                    let mut text = ui.memory_mut(|mem| mem.data.get_temp_mut_or("test".into(), "or_insert".to_string()).to_owned());
+                    let mut text = ui.memory_mut(|mem| {
+                        mem.data
+                            .get_temp_mut_or("test".into(), "or_insert".to_string())
+                            .to_owned()
+                    });
                     let mut edit = TextEdit::singleline(&mut text).show(ui);
 
-                    if !ui.memory_mut(|mem| *mem.data.get_temp_mut_or_default::<bool>("test_open".into())) {
-                        edit.state.cursor.set_char_range(Some(CCursorRange::two(CCursor::new(0), CCursor::new(text.len()))));
+                    if !ui.memory_mut(|mem| {
+                        *mem.data.get_temp_mut_or_default::<bool>("test_open".into())
+                    }) {
+                        edit.state.cursor.set_char_range(Some(CCursorRange::two(
+                            CCursor::new(0),
+                            CCursor::new(text.len()),
+                        )));
                         edit.state.store(ctx, edit.response.id);
                         edit.response.request_focus();
                     }

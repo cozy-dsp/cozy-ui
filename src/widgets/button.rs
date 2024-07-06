@@ -5,7 +5,10 @@ use egui::{
 };
 use once_cell::sync::Lazy;
 
-use crate::{colors::{BACKGROUND, HIGHLIGHT}, util::get_set::Operation};
+use crate::{
+    colors::{BACKGROUND, HIGHLIGHT},
+    util::get_set::Operation,
+};
 
 use super::{get, set};
 
@@ -106,7 +109,7 @@ impl<GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()> Widget
             (self.end_set)();
             response.mark_changed();
         }
-        response.widget_info(|| WidgetInfo::labeled(WidgetType::Button, galley.text()));
+        response.widget_info(|| WidgetInfo::labeled(WidgetType::Button, true, galley.text()));
 
         let animated_value = ui
             .ctx()

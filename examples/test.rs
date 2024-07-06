@@ -149,7 +149,7 @@ fn main() -> Result<(), eframe::Error> {
         Box::new(|cc| {
             cozy_ui::setup(&cc.egui_ctx);
             install_image_loaders(&cc.egui_ctx);
-            Box::<TestApp>::default()
+            Ok(Box::<TestApp>::default())
         }),
     )
 }

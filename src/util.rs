@@ -40,6 +40,7 @@ impl Iterator for AngleIter {
     fn size_hint(&self) -> (usize, Option<usize>) {
         (
             0,
+            #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
             self.start
                 .map(|start| ((self.end - start).abs() / PI_OVER_2).ceil() as usize),
         )

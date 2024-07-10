@@ -25,7 +25,9 @@ pub struct Slider<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn
     end_set: End,
 }
 
-impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Slider<'a, GetSet, Start, End> {
+impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>
+    Slider<'a, GetSet, Start, End>
+{
     pub fn new(id: &'a str, value: GetSet, begin_set: Start, end_set: End) -> Self {
         Self {
             id,
@@ -38,16 +40,22 @@ impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Slider<'a
         }
     }
 
+    /// Sets the description (flavor text shown in a tooltip)
+    #[must_use]
     pub fn description(mut self, description: impl Into<WidgetText>) -> Self {
         self.description = Some(description.into());
         self
     }
 
+    /// Sets a fixed width for the slider. If this isn't set, the ``slider_width`` is used instead
+    #[must_use]
     pub fn width(mut self, width: f32) -> Self {
         self.width = Some(width);
         self
     }
 
+    /// Sets the value the slider will reset to when the user double clicks on the slider
+    #[must_use]
     pub fn default_value(mut self, default: f32) -> Self {
         self.default = Some(default);
         self

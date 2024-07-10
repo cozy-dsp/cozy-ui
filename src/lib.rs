@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 use colors::{BACKGROUND, WIDGET_BACKGROUND_COL32};
 use egui::{epaint::Shadow, vec2, Color32, Context, InnerResponse, Ui};
 
@@ -24,7 +26,7 @@ pub fn setup(ctx: &Context) {
 }
 
 /// centers a ui in the available space. this will not work properly with anything that's not in a panel.
-pub fn centered<R>( 
+pub fn centered<R>(
     ctx: &Context,
     ui: &mut Ui,
     add_contents: impl FnOnce(&mut Ui) -> R,

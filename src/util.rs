@@ -30,7 +30,7 @@ impl Iterator for AngleIter {
                 self.start = None;
                 (start, self.end)
             } else {
-                let new_start = start + (PI_OVER_2 * diff.signum());
+                let new_start = PI_OVER_2.mul_add(diff.signum(), start);
                 self.start = Some(new_start);
                 (start, new_start)
             }
@@ -46,6 +46,8 @@ impl Iterator for AngleIter {
         )
     }
 }
+
+impl ExactSizeIterator for AngleIter {}
 
 pub fn generate_arc(
     painter: &Painter,
@@ -72,10 +74,10 @@ pub fn generate_arc(
             let b = p4 - center;
             let q1 = a.length_sq();
             let q2 = q1 + a.dot(b);
-            let k2 = (4.0 / 3.0) * ((2.0 * q1 * q2).sqrt() - q2) / (a.x * b.y - a.y * b.x);
+            let k2 = (4.0 / 3.0) * ((2.0 * q1 * q2).sqrt() - q2) / a.x.mul_add(b.y, -(a.y * b.x));
 
-            let p2 = Pos2::new(xc + a.x - k2 * a.y, yc + a.y + k2 * a.x);
-            let p3 = Pos2::new(xc + b.x + k2 * b.y, yc + b.y - k2 * b.x);
+            let p2 = Pos2::new(k2.mul_add(-a.y, xc + a.x), k2.mul_add(a.x, yc + a.y));
+            let p3 = Pos2::new(k2.mul_add(b.y, xc + b.x), k2.mul_add(-b.x, yc + b.y));
 
             Shape::CubicBezier(CubicBezierShape::from_points_stroke(
                 [p1, p2, p3, p4],

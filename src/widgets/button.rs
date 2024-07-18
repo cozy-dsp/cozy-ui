@@ -67,7 +67,7 @@ impl<'a, GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()>
         self
     }
 
-    pub fn small(mut self) -> Self {
+    pub const fn small(mut self) -> Self {
         self.small = true;
         self
     }

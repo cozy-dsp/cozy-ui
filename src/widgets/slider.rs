@@ -6,7 +6,7 @@ use crate::{colors::HIGHLIGHT_COL32, util::get_set::Operation};
 
 use super::{get, set};
 
-pub fn slider<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>(
+pub const fn slider<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>(
     id: &str,
     value: GetSet,
     begin_set: Start,
@@ -15,6 +15,7 @@ pub fn slider<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>(
     Slider::new(id, value, begin_set, end_set)
 }
 
+#[must_use]
 pub struct Slider<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> {
     id: &'a str,
     description: Option<WidgetText>,
@@ -28,7 +29,7 @@ pub struct Slider<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn
 impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>
     Slider<'a, GetSet, Start, End>
 {
-    pub fn new(id: &'a str, value: GetSet, begin_set: Start, end_set: End) -> Self {
+    pub const fn new(id: &'a str, value: GetSet, begin_set: Start, end_set: End) -> Self {
         Self {
             id,
             description: None,
@@ -41,22 +42,19 @@ impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>
     }
 
     /// Sets the description (flavor text shown in a tooltip)
-    #[must_use]
     pub fn description(mut self, description: impl Into<WidgetText>) -> Self {
         self.description = Some(description.into());
         self
     }
 
     /// Sets a fixed width for the slider. If this isn't set, the ``slider_width`` is used instead
-    #[must_use]
-    pub fn width(mut self, width: f32) -> Self {
+    pub const fn width(mut self, width: f32) -> Self {
         self.width = Some(width);
         self
     }
 
     /// Sets the value the slider will reset to when the user double clicks on the slider
-    #[must_use]
-    pub fn default_value(mut self, default: f32) -> Self {
+    pub const fn default_value(mut self, default: f32) -> Self {
         self.default = Some(default);
         self
     }

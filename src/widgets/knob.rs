@@ -23,7 +23,7 @@ static TRACK_GRADIENT: Lazy<BasisGradient> = Lazy::new(|| {
         .unwrap()
 });
 
-pub fn knob<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>(
+pub const fn knob<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>(
     id: &str,
     diameter: f32,
     value: GetSet,

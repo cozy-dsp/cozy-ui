@@ -1,4 +1,5 @@
 #![warn(clippy::pedantic)]
+#![warn(clippy::nursery)]
 
 use colors::{BACKGROUND, WIDGET_BACKGROUND_COL32};
 use egui::{epaint::Shadow, vec2, Color32, Context, InnerResponse, Ui};

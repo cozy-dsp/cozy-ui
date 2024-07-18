@@ -1,6 +1,6 @@
 [package]
 name = "cozy-ui"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 license = "MPL-2.0"
 
@@ -16,4 +16,4 @@ once_cell = { version = "1.19", features = ["parking_lot"] }
 eframe = "0.28"
 egui-baseview = { git = "https://github.com/BillyDM/egui-baseview", rev = "9867bbf124dc5059931a4be6e101c115410328c1" }
 baseview = { git = "https://github.com/RustAudio/baseview.git", rev = "45465c5f46abed6c6ce370fffde5edc8e4cd5aa3" }
-libsw = "3.3.1"
+libsw = "3"

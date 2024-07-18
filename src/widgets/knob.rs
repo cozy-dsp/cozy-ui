@@ -33,6 +33,7 @@ pub fn knob<GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>(
     Knob::new(id, diameter, value, begin_set, end_set)
 }
 
+#[must_use]
 pub struct Knob<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> {
     id: &'a str,
     label: Option<WidgetText>,
@@ -92,35 +93,10 @@ impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()>
 impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Widget
     for Knob<'a, GetSet, Start, End>
 {
+    #[allow(clippy::too_many_lines)]
     fn ui(mut self, ui: &mut Ui) -> Response {
-        let mut desired_size = Vec2::splat(self.diameter + 5.0);
-        let galley = self.label.map_or_else(
-            || None,
-            |label| {
-                let galley = label.into_galley(
-                    ui,
-                    Some(egui::TextWrapMode::Extend),
-                    desired_size.x,
-                    TextStyle::Body,
-                );
-                let height_difference = galley.size().y + ui.spacing().item_spacing.y;
-                desired_size.y += height_difference;
-                desired_size.x = desired_size.x.max(galley.size().x);
-                Some(galley)
-            },
-        );
-        let (full_rect, mut response) =
-            ui.allocate_exact_size(desired_size, Sense::click_and_drag());
-        if let Some(description) = self.description {
-            response = response.on_hover_text_at_pointer(description);
-        }
-        let (rect, text_rect) = if galley.is_some() {
-            let (rect, text_rect) =
-                full_rect.split_top_bottom_at_y(full_rect.top() + (self.diameter + 5.0));
-            (rect, Some(text_rect))
-        } else {
-            (full_rect, None)
-        };
+        let (galley, full_rect, mut response, rect, text_rect) =
+            make_rects(self.diameter, self.label, self.description, ui);
         let mut granular = false;
         let hovered = response.hovered() || response.dragged();
 
@@ -266,6 +242,47 @@ impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Widget
 
         response
     }
+}
+
+fn make_rects(
+    diameter: f32,
+    label: Option<WidgetText>,
+    description: Option<WidgetText>,
+    ui: &mut Ui,
+) -> (
+    Option<std::sync::Arc<egui::Galley>>,
+    egui::Rect,
+    Response,
+    egui::Rect,
+    Option<egui::Rect>,
+) {
+    let mut desired_size = Vec2::splat(diameter + 5.0);
+    let galley = label.map_or_else(
+        || None,
+        |label| {
+            let galley = label.into_galley(
+                ui,
+                Some(egui::TextWrapMode::Extend),
+                desired_size.x,
+                TextStyle::Body,
+            );
+            let height_difference = galley.size().y + ui.spacing().item_spacing.y;
+            desired_size.y += height_difference;
+            desired_size.x = desired_size.x.max(galley.size().x);
+            Some(galley)
+        },
+    );
+    let (full_rect, mut response) = ui.allocate_exact_size(desired_size, Sense::click_and_drag());
+    if let Some(description) = description {
+        response = response.on_hover_text_at_pointer(description);
+    }
+    let (rect, text_rect) = if galley.is_some() {
+        let (rect, text_rect) = full_rect.split_top_bottom_at_y(full_rect.top() + (diameter) + 5.0);
+        (rect, Some(text_rect))
+    } else {
+        (full_rect, None)
+    };
+    (galley, full_rect, response, rect, text_rect)
 }
 
 fn star(painter: &Painter, angle: f32, diameter: f32) {

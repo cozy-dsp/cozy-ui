@@ -26,11 +26,12 @@ pub fn toggle<GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()>(
     value: GetSet,
     begin_set: Start,
     end_set: End,
-) -> ButtonToggle<GetSet, Start, End> {
-    ButtonToggle::new(id, text.into(), value, begin_set, end_set)
+) -> Toggle<GetSet, Start, End> {
+    Toggle::new(id, text.into(), value, begin_set, end_set)
 }
 
-pub struct ButtonToggle<'a, GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()> {
+#[must_use]
+pub struct Toggle<'a, GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()> {
     id: &'a str,
     description: Option<WidgetText>,
     value: GetSet,
@@ -41,7 +42,7 @@ pub struct ButtonToggle<'a, GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(),
 }
 
 impl<'a, GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()>
-    ButtonToggle<'a, GetSet, Start, End>
+    Toggle<'a, GetSet, Start, End>
 {
     pub fn new(
         id: &'a str,
@@ -73,7 +74,7 @@ impl<'a, GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()>
 }
 
 impl<GetSet: FnMut(Operation<bool>) -> bool, Start: Fn(), End: Fn()> Widget
-    for ButtonToggle<'_, GetSet, Start, End>
+    for Toggle<'_, GetSet, Start, End>
 {
     fn ui(mut self, ui: &mut Ui) -> egui::Response {
         let id = self.id;

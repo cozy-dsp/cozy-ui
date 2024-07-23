@@ -201,7 +201,7 @@ impl<'a, GetSet: FnMut(Operation<f32>) -> f32, Start: Fn(), End: Fn()> Widget
                     radius * 0.75,
                     value_angle.to_radians(),
                     modulated_angle.to_radians(),
-                    Stroke::new(radius * 0.1, Color32::from_rgb(133, 19, 173)),
+                    Stroke::new(radius * 0.1, Color32::from_rgb(175, 48, 255)),
                 );
             }
 
